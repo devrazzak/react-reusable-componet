@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import "./App.css";
-import Select from "./components/Searchable-elect/SearchableSelect";
+import MultiSelect from "./components/Searchable-elect/MultiSearchSelect";
 
 const options = [
     { label: "Apple", value: "apple" },
@@ -27,7 +27,7 @@ function App(props) {
     });
     return (
         <div className="app">
-            <Select
+            <MultiSelect
                 id="category_name"
                 name="category_name"
                 labelText="select Category"
@@ -49,6 +49,8 @@ function App(props) {
             >
                 select
             </button>
+
+            {/* <DropDownMenu /> */}
         </div>
     );
 }

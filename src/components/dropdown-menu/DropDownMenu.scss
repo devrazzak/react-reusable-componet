@@ -1,0 +1,9 @@
+.menu {
+    display: none;
+}
+.menu.active {
+    display: block;
+}
+p.active {
+    color: red;
+}

@@ -1,55 +1,107 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./select.scss";
 
-function Select(props) {
+function MultiSelect(props) {
     const [inputText, setInputText] = useState("");
     const [showOption, setShowOption] = useState(false);
-    const [selectOptions, setSelectOptions] = useState(props.options);
     const [multiOptions, setMultiOptions] = useState([]);
+    const [storeOptions, setStoreOptions] = useState(props.options);
+    const [selectOptions, setSelectOptions] = useState(storeOptions);
+    const [deleteIndex, setDeleteIndex] = useState("");
+    const inputRef = useRef();
+    const isMulti = true;
 
     const hnadleInputText = (e) => {
         setInputText(e.target.value);
         setShowOption(true);
-        if (e.target.value !== "") {
-            const filterText = props.options.filter((item) => {
-                return item.label
-                    .toLocaleLowerCase()
-                    .includes(e.target.value.toLocaleLowerCase());
-            });
-            setSelectOptions(filterText);
+        if (isMulti) {
+            if (e.target.value !== "") {
+                const filterText = storeOptions.filter((item) => {
+                    return item.label
+                        .toLocaleLowerCase()
+                        .includes(e.target.value.toLocaleLowerCase());
+                });
+                setSelectOptions(filterText);
+            } else {
+                setSelectOptions(storeOptions);
+            }
         } else {
-            setSelectOptions(props.options);
+            if (e.target.value !== "") {
+                const filterText = props.options.filter((item) => {
+                    return item.label
+                        .toLocaleLowerCase()
+                        .includes(e.target.value.toLocaleLowerCase());
+                });
+                setSelectOptions(filterText);
+            } else {
+                setSelectOptions(props.options);
+            }
         }
     };
 
     const handleOption = (value) => {
-        const isMulti = false;
         setShowOption(false);
-        setSelectOptions(props.options);
         const selectValue = selectOptions.find((item) => item.value === value);
+        const index = selectOptions.findIndex((item) => item.value === value);
+        setDeleteIndex(index);
         if (isMulti) {
-            setMultiOptions([...multiOptions, { selectValue }]);
-            props.formik.setFieldValue(props.name, multiOptions);
+            setMultiOptions([...multiOptions, selectValue]);
+            const filterText = storeOptions.filter(
+                (item) => item.value !== selectValue.value
+            );
+            props.formik.setFieldValue(props.name, [
+                ...props.formik.values[props.name],
+                selectValue.value,
+            ]);
+            setStoreOptions(filterText);
+            setSelectOptions(filterText);
         } else {
+            setSelectOptions(props.options);
             setInputText(selectValue.label);
             props.formik.setFieldValue(props.name, selectValue.value);
         }
     };
 
     useEffect(() => {
-        if (props.value) {
-            const filterText = props.options.find(
-                (item) => item.value === props.value
-            );
-            if (filterText) {
-                props.formik.setFieldValue(props.name, filterText.value);
-                setInputText(filterText.label);
-            } else {
-                props.formik.setFieldValue(props.name, props.value);
-                setInputText(props.value);
+        if (isMulti) {
+        } else {
+            if (props.value) {
+                const filterText = props.options.find(
+                    (item) => item.value === props.value
+                );
+                if (filterText) {
+                    props.formik.setFieldValue(props.name, filterText.value);
+                    setInputText(filterText.label);
+                } else {
+                    props.formik.setFieldValue(props.name, props.value);
+                    setInputText(props.value);
+                }
             }
         }
     }, [props.value]);
+
+    const addCursor = () => {
+        inputRef.current.select();
+        setShowOption(true);
+    };
+
+    const deleteOptions = (option) => {
+        const deleteText = multiOptions.filter(
+            (item) => item.value !== option.value
+        );
+        setMultiOptions(deleteText);
+        const formikValue = deleteText.map((item) => item.value);
+        console.log("formkiValue", formikValue.length);
+        if (formikValue.length > 0) {
+            props.formik.setFieldValue(props.name, formikValue);
+        } else {
+            props.formik.setFieldValue(props.name, "");
+        }
+        let newSelect = [...selectOptions];
+        newSelect.splice(deleteIndex, 0, option);
+        setStoreOptions(newSelect);
+        setSelectOptions(newSelect);
+    };
 
     return (
         <div className="select-field">
@@ -71,31 +123,59 @@ function Select(props) {
                 onClick={() => setShowOption(false)}
             ></div>
             <div className="select-area">
-                <input
-                    id={props.id}
-                    name={props.name}
-                    type="text"
-                    onChange={(e) => {
-                        props.formik.handleChange(e);
-                        hnadleInputText(e);
-                    }}
-                    value={inputText}
-                    onClick={() => setShowOption(!showOption)}
-                    placeholder={props.labelText}
-                    onBlur={props.formik.handleBlur}
-                />
-                <div>
-                    {multiOptions.map((item, index) => (
-                        <span key={index}>{item.label}</span>
-                    ))}
-                </div>
+                {isMulti ? (
+                    <div className="multi-selec-area" onClick={addCursor}>
+                        <div className="input-box-area">
+                            {multiOptions.map((item, index) => (
+                                <div className="options" key={index}>
+                                    {item.label}
+                                    <span onClick={() => deleteOptions(item)}>
+                                        x
+                                    </span>
+                                </div>
+                            ))}
+                            <div className="input-box">
+                                <input
+                                    className="multi-select"
+                                    id={props.id}
+                                    name={props.name}
+                                    type="text"
+                                    onChange={(e) => {
+                                        props.formik.handleChange(e);
+                                        hnadleInputText(e);
+                                    }}
+                                    value={inputText}
+                                    ref={inputRef}
+                                    onClick={() => setShowOption(!showOption)}
+                                    placeholder={props.labelText}
+                                    onBlur={props.formik.handleBlur}
+                                />
+                            </div>
+                        </div>
+                        <div className="input-cross"></div>
+                    </div>
+                ) : (
+                    <input
+                        id={props.id}
+                        name={props.name}
+                        type="text"
+                        onChange={(e) => {
+                            props.formik.handleChange(e);
+                            hnadleInputText(e);
+                        }}
+                        value={inputText}
+                        onClick={() => setShowOption(!showOption)}
+                        placeholder={props.labelText}
+                        onBlur={props.formik.handleBlur}
+                    />
+                )}
                 <div className="error-message">
                     {props.formik.errors[props.name] && (
                         <span>{props.formik.errors[props.name]}</span>
                     )}
                 </div>
                 <div className={`input-options ${showOption ? "active" : ""}`}>
-                    {selectOptions.length > 0 ? (
+                    {selectOptions?.length > 0 ? (
                         <>
                             {selectOptions.map((option, index) => (
                                 <p
@@ -115,4 +195,4 @@ function Select(props) {
     );
 }
 
-export default Select;
+export default MultiSelect;
