@@ -9,7 +9,7 @@ function MultiSelect(props) {
     const [selectOptions, setSelectOptions] = useState(storeOptions);
     const [deleteIndex, setDeleteIndex] = useState("");
     const inputRef = useRef();
-    const isMulti = true;
+    const isMulti = props.multi;
 
     const hnadleInputText = (e) => {
         setInputText(e.target.value);
@@ -196,3 +196,62 @@ function MultiSelect(props) {
 }
 
 export default MultiSelect;
+
+// how to call it
+
+{
+    /* 
+    // multiselect options 
+    const options = [
+        { label: "Apple", value: "apple" },
+        { label: "Orange", value: "orange" },
+        { label: "Banana", value: "banana" },
+        { label: "Lichhu", value: "lichhu" },
+        { label: "Pine Apple", value: "pine-apple" },
+    ];
+    // formik validation
+    const validateDuaForm = (values) => {
+        let errors = {};
+        if (!values.category_name) errors.category_name = "Name is Required";
+        return errors;
+    };
+
+    // formik initialization 
+    const formik = useFormik({
+        initialValues: {
+            category_name: "",
+        },
+        onSubmit: (values) => {
+            console.log(values);
+        },
+        validate: validateDuaForm,
+    });
+    
+    // component calling
+    <MultiSelect
+        id="category_name"
+        name="category_name"
+        labelText="select Category"
+        asterisk={true}
+        value={formik.values.category_name}
+        options={options}
+        formik={formik}
+        multi={false}
+    />
+
+    // on submit button
+    <button onClick={formik.handleSubmit} type="submit">
+        button
+    </button>
+
+    // if you set value a value after a operation then it. It only works single select not multiple
+    <button
+        type="button"
+        onClick={() => {
+            formik.setFieldValue("category_name", "orange");
+        }}
+    >
+        select
+    </button>
+*/
+}
