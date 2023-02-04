@@ -10,17 +10,13 @@ function DynamicInput() {
         ),
     });
     const validate = (values) => {
-        let errors = {
-            dua:[]
-        }
-        console.log('values', values)
+        let errors = {}
         if(!values.name) errors.name = "This field is required"
         values.dua.forEach((item, index) => {
             if (!item.arabic_text) {
-              errors.dua[index] = {arabic_text: "This field is required"}
+              errors[index] = {arabic_text: "This field is required"}
             }
           });
-        console.log("errors", errors)
         return errors
     }
 
@@ -67,7 +63,7 @@ function DynamicInput() {
                                                 onBlur={formik.handleBlur}
                                                 value={formik.values.dua[index]?.arabic_text}
                                             />
-                                            <p>{formik.touched.dua && formik.touched.dua[index]?.arabic_text ||formik.isSubmitting ? formik.errors.dua &&formik.errors.dua[index]?.arabic_text : ""}</p>
+                                            <p>{formik.touched.dua && formik.touched.dua[index]?.arabic_text ||formik.isSubmitting ? formik.errors &&formik.errors[index]?.arabic_text : ""}</p>
                                             {/* <InputField
                                                 id={`dua.${index}.arabic_text`}
                                                 inputLabel="Ayat Name"

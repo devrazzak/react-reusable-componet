@@ -6,6 +6,7 @@ function App(props) {
     return (
         <div className="app">
             <DynamicInput />
+            {/* <CustomDynamicAddInput/> */}
         </div>
     );
 }
